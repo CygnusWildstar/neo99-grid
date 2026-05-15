@@ -1,0 +1,27 @@
+{
+  "name": "neo99-grid",
+  "version": "0.1.0",
+  "description": "The Neo99 Grid :: Cyberpunk operator console, deployed on Azure. Operator: CygnusWildstar.",
+  "main": "server/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node --watch server/server.js"
+  },
+  "keywords": [
+    "tron",
+    "cyberpunk",
+    "azure",
+    "node",
+    "express",
+    "neo99"
+  ],
+  "author": "CygnusWildstar",
+  "license": "ISC",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}

@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+.npm/
+
+# Environment files (never commit secrets!)
+.env
+.env.local
+.env.*.local
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor settings (personal, not shared)
+.vscode/
+.idea/
+
+# Build outputs
+dist/
+build/
+
+# Azure artifacts
+*.publishsettings
+
+# Temp
+*.tmp
+*.swp
+*~
