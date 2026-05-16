@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEO99 :: GRID</title>
+    <style>
+        body {
+            background: #000;
+            color: #00ffff;
+            font-family: 'Courier New', monospace;
+            padding: 2rem;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
+        }
+        h1 {
+            font-size: 2.5rem;
+            letter-spacing: 0.3em;
+            border-bottom: 1px solid #00ffff;
+            padding-bottom: 0.5rem;
+        }
+        .blink {
+            animation: blink 1.2s infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0.2; }
+        }
+        code {
+            color: #00ff99;
+        }
+    </style>
+</head>
+<body>
+    <h1>NEO99 :: GRID</h1>
+    <p>Operator Console <span class="blink">▮</span></p>
+    <p>Status: <code>online</code></p>
+    <p>Try the API: <a href="/api/status" style="color: #00ff99;">/api/status</a></p>
+    <p style="margin-top: 3rem; opacity: 0.6;">End of line. ◢◣</p>
+</body>
+</html>
