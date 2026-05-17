@@ -4,13 +4,12 @@
 //  Operator: CygnusWildstar
 // ==========================================================
 //
-// Pass 2 scope: stand up a working terminal with full input
-//   handling. Two local commands wired up to prove the loop:
-//     help    → prints help text
-//     clear   → clears the screen
-//   Anything else gets a friendly "unknown command" response.
-//
-// Pass 3 will route real commands through the Express backend.
+// Pass 3: command dispatch via POST /api/command.
+//   - The frontend handles input, history, rendering.
+//   - The backend handles command logic + responses.
+//   - 'clear' is still handled locally (no roundtrip needed).
+//   - Special 'effect' field in responses triggers frontend
+//     effects like the matrix rain.
 // ==========================================================
 
 (function () {
@@ -24,7 +23,6 @@
         cursorAccent:'#000308',
         selection:   'rgba(0, 255, 255, 0.3)',
 
-        // ANSI palette — using cyans / greens / minimal warmth
         black:        '#000308',
         red:          '#ff3355',
         green:        '#00ff99',
@@ -44,7 +42,7 @@
         brightWhite:  '#ffffff',
     };
 
-    // ---- ANSI escape helpers — for inline colored output ----
+    // ---- ANSI escape helpers ----
     const ESC = '\x1b[';
     const ansi = {
         reset:        ESC + '0m',
@@ -58,7 +56,23 @@
         bold:         ESC + '1m',
     };
 
-    // ---- Boot ----
+    // Map server "color" hint → ANSI sequence
+    const colorMap = {
+        cyan:        ansi.cyan,
+        cyanBright:  ansi.cyanBright,
+        green:       ansi.green,
+        greenBright: ansi.greenBright,
+        red:         ansi.red,
+        yellow:      ansi.yellow,
+        dim:         ansi.dim + ansi.cyan,
+    };
+
+    function colorize(text, color) {
+        if (!color || !colorMap[color]) return text;
+        return colorMap[color] + text + ansi.reset;
+    }
+
+    // ---- Terminal boot ----
     const term = new Terminal({
         theme: NEO99_THEME,
         fontFamily: '"Courier New", "Consolas", "Monaco", monospace',
@@ -71,16 +85,12 @@
         convertEol: true,
     });
 
-    // Addons
     const fitAddon = new FitAddon.FitAddon();
     const webLinksAddon = new WebLinksAddon.WebLinksAddon();
     term.loadAddon(fitAddon);
     term.loadAddon(webLinksAddon);
 
-    // Mount into the #terminal div in index.html
     term.open(document.getElementById('terminal'));
-
-    // Fit to container dimensions, then refit on any window resize
     fitAddon.fit();
     window.addEventListener('resize', () => fitAddon.fit());
 
@@ -93,7 +103,7 @@
         term.writeln('');
         term.writeln(c + '  ╔══════════════════════════════════════════════════╗' + r);
         term.writeln(c + '  ║              NEO99 // GRID                       ║' + r);
-        term.writeln(c + '  ║          Operator Console v0.2.0                 ║' + r);
+        term.writeln(c + '  ║          Operator Console v0.3.0                 ║' + r);
         term.writeln(c + '  ╚══════════════════════════════════════════════════╝' + r);
         term.writeln('');
         term.writeln(d + '  [OK] ' + ansi.reset + ansi.cyan + 'Initializing wave motion core...' + r);
@@ -106,11 +116,12 @@
         term.writeln('');
     }
 
-    // ---- Prompt management ----
+    // ---- Prompt + state ----
     const PROMPT = ansi.cyanBright + 'grid> ' + ansi.reset;
     let currentLine = '';
     let history = [];
     let historyIndex = -1;
+    let busy = false;     // disable input while command is running
 
     function writePrompt() {
         term.write(PROMPT);
@@ -120,38 +131,85 @@
         term.write('\r\n');
     }
 
-    // ---- Local command dispatcher (Pass 2 — stubbed) ----
-    //   Pass 3 will replace this with a POST to /api/command.
-    function dispatchCommand(line) {
+    // ---- Render lines from the server ----
+    function renderLine(line) {
+        const text = line.text || '';
+        if (text === '') {
+            term.writeln('');
+            return;
+        }
+        term.writeln(colorize(text, line.color));
+    }
+
+    async function renderLines(lines, animated) {
+        if (!lines || lines.length === 0) return;
+
+        if (animated) {
+            // Honor per-line delay hints
+            for (const line of lines) {
+                if (line.delay && line.delay > 0) {
+                    await sleep(line.delay - (lines[0].delay || 0));
+                }
+                renderLine(line);
+            }
+        } else {
+            for (const line of lines) renderLine(line);
+        }
+    }
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // ---- Frontend effects ----
+    function triggerEffect(effect) {
+        if (effect === 'matrix') {
+            // Pass 3 stub — Pass 4 may add a real canvas overlay.
+            // For now, drop a hint line and let the user imagine.
+            term.writeln(ansi.green + '  [the matrix shimmers — effect placeholder]' + ansi.reset);
+        }
+    }
+
+    // ---- Command dispatch ----
+    async function dispatchCommand(line) {
         const trimmed = line.trim();
         if (trimmed === '') return;
 
-        const [cmd] = trimmed.split(/\s+/);
+        // 'clear' stays local for instant response
+        if (trimmed.toLowerCase() === 'clear') {
+            term.clear();
+            return;
+        }
 
-        switch (cmd.toLowerCase()) {
-            case 'help':
-                term.writeln(ansi.cyanBright + '  Available commands (Pass 2 — local only):' + ansi.reset);
-                term.writeln('');
-                term.writeln('    ' + ansi.greenBright + 'help' + ansi.reset + '       — show this message');
-                term.writeln('    ' + ansi.greenBright + 'clear' + ansi.reset + '      — clear the terminal');
-                term.writeln('');
-                term.writeln(ansi.dim + ansi.cyan + '  Pass 3 will add: whoami, date, scan, matrix, status, argo, ...' + ansi.reset);
-                term.writeln('');
-                break;
+        busy = true;
+        try {
+            const res = await fetch('/api/command', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ command: trimmed }),
+            });
 
-            case 'clear':
-                term.clear();
-                break;
+            if (!res.ok) {
+                term.writeln(ansi.red + `  HTTP ${res.status} — server error` + ansi.reset);
+                return;
+            }
 
-            default:
-                term.writeln(ansi.red + '  unknown command: ' + ansi.reset + cmd);
-                term.writeln(ansi.dim + ansi.cyan + '  type "help" for a list of available commands.' + ansi.reset);
-                break;
+            const data = await res.json();
+            await renderLines(data.lines, data.animated);
+            if (data.effect) triggerEffect(data.effect);
+
+        } catch (err) {
+            term.writeln(ansi.red + `  network error: ${err.message}` + ansi.reset);
+            term.writeln(ansi.dim + ansi.cyan + '  is the server running?' + ansi.reset);
+        } finally {
+            busy = false;
         }
     }
 
     // ---- Input handling ----
     term.onKey(({ key, domEvent }) => {
+        if (busy) return;            // ignore keystrokes while a command runs
+
         const ev = domEvent;
         const printable =
             !ev.altKey && !ev.ctrlKey && !ev.metaKey &&
@@ -159,16 +217,16 @@
 
         if (ev.key === 'Enter') {
             newline();
-            history.push(currentLine);
+            const line = currentLine;
+            history.push(line);
             historyIndex = history.length;
-            dispatchCommand(currentLine);
             currentLine = '';
-            writePrompt();
+            // Note: writePrompt happens AFTER the async dispatch completes
+            dispatchCommand(line).then(() => writePrompt());
 
         } else if (ev.key === 'Backspace') {
             if (currentLine.length > 0) {
                 currentLine = currentLine.slice(0, -1);
-                // Erase one char: move cursor back, write space, move back again
                 term.write('\b \b');
             }
 
@@ -191,21 +249,17 @@
             currentLine += key;
             term.write(key);
         }
-        // (Tab, function keys, etc. ignored for now — Pass 3 may add tab completion)
     });
 
     function replaceCurrentLine(newLine) {
-        // Erase the current input visually
         while (currentLine.length > 0) {
             term.write('\b \b');
             currentLine = currentLine.slice(0, -1);
         }
-        // Write the new line
         currentLine = newLine;
         term.write(newLine);
     }
 
-    // ---- Focus management — clicking anywhere in the pane focuses xterm ----
     document.querySelector('.terminal-pane').addEventListener('click', () => {
         term.focus();
     });
