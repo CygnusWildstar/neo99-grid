@@ -13,6 +13,14 @@ import matrix from './matrix.js';
 import argo from './argo.js';
 import version from './version.js';
 import feeds from './feeds.js';
+import weather from './weather.js';
+import connect from './connect.js';
+import ascii from './ascii.js';
+import motd from './motd.js';
+import ping from './ping.js';
+import theme from './theme.js';
+import { mute, unmute } from './mute.js';
+import lightcycle from './lightcycle.js';
 
 export const commands = new Map([
     ['help',     help],
@@ -27,6 +35,15 @@ export const commands = new Map([
     ['wildstar', argo],
     ['version',  version],
     ['feeds',    feeds],
+    ['weather',  weather],
+    ['connect',  connect],
+    ['ascii',    ascii],
+    ['motd',     motd],
+    ['ping',     ping],
+    ['theme',      theme],
+    ['mute',       mute],
+    ['unmute',     unmute],
+    ['lightcycle', lightcycle],
 ]);
 
 export async function runCommand(name, args, context) {

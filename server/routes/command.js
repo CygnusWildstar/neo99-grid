@@ -4,6 +4,7 @@
 
 import express from 'express';
 import { runCommand } from '../commands/index.js';
+import { telemetry } from '../services/telemetry/counter.js';
 
 const router = express.Router();
 
@@ -26,14 +27,15 @@ router.post('/command', async (req, res) => {
 
     const [name, ...args] = trimmed.split(/\s+/);
 
-    // Context — give commands useful runtime info
     const context = {
         ip: req.ip,
         userAgent: req.get('user-agent') || 'unknown',
         timestamp: new Date().toISOString(),
+        sessionId: req.sessionId,
     };
 
     const result = await runCommand(name, args, context);
+    telemetry.bumpCommand();
     res.json(result);
 });
 

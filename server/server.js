@@ -7,11 +7,14 @@
 import express from 'express';
 import { fileURLToPath } from 'url';
 import path from 'path';
+import crypto from 'crypto';
 
 import commandRouter from './routes/command.js';
 import feedsRouter from './routes/feeds.js';
+import telemetryRouter from './routes/telemetry.js';
 import { commands } from './commands/index.js';
 import { startFeedService, sources as feedSources } from './services/feeds/index.js';
+import { telemetry } from './services/telemetry/counter.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,11 +25,35 @@ const PORT = process.env.PORT || 3000;
 
 // ---- Middleware ----
 app.use(express.json({ limit: '64kb' }));
+
+// Session cookie middleware — sets a random id on first visit so
+// we can dedupe visitor counts. Cookie is httpOnly so JS can't read it.
+app.use((req, res, next) => {
+    const cookieName = 'neo99_sess';
+    const existing = req.headers.cookie?.split(';')
+        .find(c => c.trim().startsWith(cookieName + '='));
+
+    let sessionId;
+    if (existing) {
+        sessionId = existing.split('=')[1].trim();
+    } else {
+        sessionId = crypto.randomBytes(16).toString('hex');
+        // Cookie expires in 24h, same-origin only
+        res.setHeader('Set-Cookie',
+            `${cookieName}=${sessionId}; HttpOnly; SameSite=Lax; Max-Age=86400; Path=/`);
+    }
+
+    req.sessionId = sessionId;
+    telemetry.bumpVisitor(sessionId);
+    next();
+});
+
 app.use(express.static(publicDir));
 
 // ---- Routes ----
 app.use('/api', commandRouter);
 app.use('/api', feedsRouter);
+app.use('/api', telemetryRouter);
 
 app.get('/api/status', (req, res) => {
     res.json({
@@ -63,12 +90,10 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`    POST  /api/command       → operator command dispatch`);
     console.log(`    GET   /api/feeds         → all cached feed items`);
     console.log(`    GET   /api/feeds/:source → one source only`);
+    console.log(`    GET   /api/telemetry     → live HUD telemetry`);
     console.log(`    GET   /api/status        → server status JSON`);
     console.log(`    GET   /healthz           → health check (for App Service)`);
 
-    // Boot the feed service AFTER the server is listening — keeps
-    // startup logs in a logical order and ensures the API is ready
-    // for incoming requests by the time the first fetch returns.
     startFeedService();
 
     console.log('  End of line. ◢◣');

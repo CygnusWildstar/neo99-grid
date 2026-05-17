@@ -16,7 +16,8 @@
         <header class="bar-top">
             <div class="brand">NEO99 :: GRID</div>
             <div class="operator">
-                <span class="label">Operator:</span>CygnusWildstar
+                <a href="https://github.com/CygnusWildstar/neo99-grid" target="_blank" rel="noopener" class="github-link">github.com/CygnusWildstar/neo99-grid</a>
+                <span><span class="label">Operator:</span>CygnusWildstar</span>
             </div>
         </header>
 
@@ -47,17 +48,38 @@
         </main>
 
         <!-- ============================================ -->
+        <!-- LIGHTCYCLE ARENA                              -->
+        <!-- ============================================ -->
+        <section class="lightcycle-pane">
+            <div class="lightcycle-header">
+                <span class="lc-title" id="lightcycle-status">// LIGHTCYCLE ARENA · click to focus · esc to release</span>
+                <span class="lc-controls">
+                    STEER: <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd>
+                    &nbsp;·&nbsp;
+                    P1 <span class="lc-score"><span id="lc-p1-score" class="p1">0</span></span>
+                    &nbsp;·&nbsp;
+                    CPU <span class="lc-score"><span id="lc-cpu-score" class="cpu">0</span></span>
+                </span>
+            </div>
+            <pre id="lightcycle-arena"></pre>
+        </section>
+
+        <!-- ============================================ -->
         <!-- BOTTOM STATUS BAR                             -->
         <!-- ============================================ -->
-        <footer class="bar-bottom">
+
+         <footer class="bar-bottom">
             <div class="stat">
-                <span class="label">Status:</span><span class="value">online</span>
+                <span class="label">Status:</span><span class="value" id="hud-status">connecting...</span>
             </div>
             <div class="stat">
-                <span class="label">Uptime:</span><span class="value" id="uptime">0d 0h 0m</span>
+                <span class="label">Uptime:</span><span class="value" id="uptime">--</span>
             </div>
             <div class="stat">
-                <span class="label">Visitors:</span><span class="value" id="visitors">1</span>
+                <span class="label">Visitors:</span><span class="value" id="visitors">--</span>
+            </div>
+            <div class="stat">
+                <span class="label">Heap:</span><span class="value" id="hud-heap">-- MB</span>
             </div>
             <div class="stat" style="text-align: right;">
                 <span class="label">Time:</span><span class="value" id="clock">--:--:--</span>
@@ -73,7 +95,11 @@
 
     <!-- First-party: our app code -->
     <script src="/js/clock.js"></script>
+    <script src="/js/telemetry.js"></script>
+    <script src="/js/theme.js"></script>
     <script src="/js/feeds.js"></script>
+    <script src="/js/audio.js"></script>
     <script src="/js/console.js"></script>
+    <script src="/js/lightcycle.js"></script>
 </body>
 </html>

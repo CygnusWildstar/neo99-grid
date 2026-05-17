@@ -162,11 +162,21 @@
     }
 
     // ---- Frontend effects ----
-    function triggerEffect(effect) {
+    function triggerEffect(effect, data) {
         if (effect === 'matrix') {
-            // Pass 3 stub — Pass 4 may add a real canvas overlay.
-            // For now, drop a hint line and let the user imagine.
+            // Pass 3 stub — Pass 4 will add a real canvas overlay.
             term.writeln(ansi.green + '  [the matrix shimmers — effect placeholder]' + ansi.reset);
+        }
+        if (effect === 'theme' && data?.name && window.NEO99_applyTheme) {
+            window.NEO99_applyTheme(data.name);
+            if (window.NEO99_audio) window.NEO99_audio.play('themeChange');
+        }
+        if (effect === 'audio_mute' && window.NEO99_audio) {
+            window.NEO99_audio.mute();
+        }
+        if (effect === 'audio_unmute' && window.NEO99_audio) {
+            window.NEO99_audio.unmute();
+            window.NEO99_audio.play('success');
         }
     }
 
@@ -195,8 +205,14 @@
             }
 
             const data = await res.json();
+
+            // Play success / error sound based on result
+            if (window.NEO99_audio) {
+                window.NEO99_audio.play(data.ok ? 'success' : 'error');
+            }
+
             await renderLines(data.lines, data.animated);
-            if (data.effect) triggerEffect(data.effect);
+            if (data.effect) triggerEffect(data.effect, data.effectData);
 
         } catch (err) {
             term.writeln(ansi.red + `  network error: ${err.message}` + ansi.reset);
@@ -216,16 +232,17 @@
             key.length === 1 && key.charCodeAt(0) >= 32;
 
         if (ev.key === 'Enter') {
+            if (window.NEO99_audio) window.NEO99_audio.play('enter');
             newline();
             const line = currentLine;
             history.push(line);
             historyIndex = history.length;
             currentLine = '';
-            // Note: writePrompt happens AFTER the async dispatch completes
             dispatchCommand(line).then(() => writePrompt());
 
         } else if (ev.key === 'Backspace') {
             if (currentLine.length > 0) {
+                if (window.NEO99_audio) window.NEO99_audio.play('keystroke');
                 currentLine = currentLine.slice(0, -1);
                 term.write('\b \b');
             }
@@ -246,22 +263,10 @@
             }
 
         } else if (printable) {
+            if (window.NEO99_audio) window.NEO99_audio.play('keystroke');
             currentLine += key;
             term.write(key);
         }
-    });
-
-    function replaceCurrentLine(newLine) {
-        while (currentLine.length > 0) {
-            term.write('\b \b');
-            currentLine = currentLine.slice(0, -1);
-        }
-        currentLine = newLine;
-        term.write(newLine);
-    }
-
-    document.querySelector('.terminal-pane').addEventListener('click', () => {
-        term.focus();
     });
 
     // ---- Boot sequence ----
