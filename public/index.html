@@ -4,36 +4,142 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEO99 :: GRID</title>
-    <style>
-        body {
-            background: #000;
-            color: #00ffff;
-            font-family: 'Courier New', monospace;
-            padding: 2rem;
-            text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
-        }
-        h1 {
-            font-size: 2.5rem;
-            letter-spacing: 0.3em;
-            border-bottom: 1px solid #00ffff;
-            padding-bottom: 0.5rem;
-        }
-        .blink {
-            animation: blink 1.2s infinite;
-        }
-        @keyframes blink {
-            50% { opacity: 0.2; }
-        }
-        code {
-            color: #00ff99;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/grid.css">
 </head>
 <body>
-    <h1>NEO99 :: GRID</h1>
-    <p>Operator Console <span class="blink">▮</span></p>
-    <p>Status: <code>online</code></p>
-    <p>Try the API: <a href="/api/status" style="color: #00ff99;">/api/status</a></p>
-    <p style="margin-top: 3rem; opacity: 0.6;">End of line. ◢◣</p>
+    <div class="grid-shell">
+
+        <!-- ============================================ -->
+        <!-- TOP STATUS BAR                                -->
+        <!-- ============================================ -->
+        <header class="bar-top">
+            <div class="brand">NEO99 :: GRID</div>
+            <div class="operator">
+                <span class="label">Operator:</span>CygnusWildstar
+            </div>
+        </header>
+
+        <!-- ============================================ -->
+        <!-- MAIN — terminal pane + feed pane              -->
+        <!-- ============================================ -->
+        <main class="main">
+
+            <!-- ----- Terminal pane (left) ----- -->
+            <section class="terminal-pane">
+                <div class="pane-header">
+                    <span class="title">// Operator Terminal</span>
+                    <span>
+                        <span class="indicator"></span>
+                    </span>
+                </div>
+
+                <!-- Placeholder boot text. Pass 2 replaces this div with xterm.js -->
+                <div id="terminal" class="terminal-placeholder">
+                    <div class="boot-line">[OK] Initializing wave motion core...</div>
+                    <div class="boot-line">[OK] Cosmo radar online.</div>
+                    <div class="boot-line">[OK] Identity disc: paired</div>
+                    <div class="boot-line">[OK] Connection to The Grid: established</div>
+                    <div class="boot-line">[OK] Operator: CygnusWildstar</div>
+                    <div class="boot-line">&nbsp;</div>
+                    <div class="boot-line"><span class="prompt">grid&gt;</span> <span class="cursor"></span></div>
+                </div>
+            </section>
+
+            <!-- ----- Feed pane (right) ----- -->
+            <aside class="feed-pane">
+
+                <article class="feed-card">
+                    <header class="card-header">
+                        <span class="source">// Hacker News</span>
+                        <span class="count">[ 3 ]</span>
+                    </header>
+                    <div class="card-body">
+                        <div class="feed-item">
+                            Show HN: I built a TRON-themed operator console
+                            <span class="meta">2 min ago · neo99.com</span>
+                        </div>
+                        <div class="feed-item">
+                            The state of LLM inference in 2026
+                            <span class="meta">14 min ago</span>
+                        </div>
+                        <div class="feed-item">
+                            Postgres 19 released
+                            <span class="meta">1 hr ago</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="feed-card">
+                    <header class="card-header">
+                        <span class="source">// Ars Technica</span>
+                        <span class="count">[ 2 ]</span>
+                    </header>
+                    <div class="card-body">
+                        <div class="feed-item">
+                            Inside the data center cooling crisis
+                            <span class="meta">23 min ago</span>
+                        </div>
+                        <div class="feed-item">
+                            Quantum compute milestone hit by [redacted]
+                            <span class="meta">2 hrs ago</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="feed-card">
+                    <header class="card-header">
+                        <span class="source">// Microsoft Azure</span>
+                        <span class="count">[ 2 ]</span>
+                    </header>
+                    <div class="card-body">
+                        <div class="feed-item">
+                            App Service: new deployment slot features
+                            <span class="meta">1 hr ago</span>
+                        </div>
+                        <div class="feed-item">
+                            Front Door SKU updates
+                            <span class="meta">3 hrs ago</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="feed-card">
+                    <header class="card-header">
+                        <span class="source">// The Verge</span>
+                        <span class="count">[ 1 ]</span>
+                    </header>
+                    <div class="card-body">
+                        <div class="feed-item">
+                            The death and rebirth of the optical drive
+                            <span class="meta">5 hrs ago</span>
+                        </div>
+                    </div>
+                </article>
+
+            </aside>
+
+        </main>
+
+        <!-- ============================================ -->
+        <!-- BOTTOM STATUS BAR                             -->
+        <!-- ============================================ -->
+        <footer class="bar-bottom">
+            <div class="stat">
+                <span class="label">Status:</span><span class="value">online</span>
+            </div>
+            <div class="stat">
+                <span class="label">Uptime:</span><span class="value" id="uptime">0d 0h 0m</span>
+            </div>
+            <div class="stat">
+                <span class="label">Visitors:</span><span class="value" id="visitors">1</span>
+            </div>
+            <div class="stat" style="text-align: right;">
+                <span class="label">Time:</span><span class="value" id="clock">--:--:--</span>
+            </div>
+        </footer>
+
+    </div>
+
+    <script src="/js/clock.js"></script>
 </body>
 </html>

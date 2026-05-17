@@ -1,0 +1,329 @@
+/* ==========================================================
+   NEO99 :: GRID — Cyberpunk Operator Console
+   Pass 1: Layout shell + TRON Legacy aesthetic
+   Operator: CygnusWildstar
+   ========================================================== */
+
+/* ---- Design tokens ---- */
+:root {
+    /* Palette — TRON Legacy cyan */
+    --cyan:           #00ffff;
+    --cyan-bright:    #4dffff;
+    --cyan-dim:       #008888;
+    --cyan-deep:      #003333;
+    --green:          #00ff99;
+    --amber:          #ffaa00;        /* reserved for warnings */
+    --red:            #ff3355;        /* reserved for errors */
+
+    --bg-base:        #000308;        /* almost-black with a hint of blue */
+    --bg-panel:       #02090f;
+    --bg-panel-hi:    #061218;
+
+    --border:         rgba(0, 255, 255, 0.35);
+    --border-bright:  rgba(0, 255, 255, 0.7);
+
+    --glow-sm:        0 0 4px rgba(0, 255, 255, 0.5);
+    --glow-md:        0 0 8px rgba(0, 255, 255, 0.6);
+    --glow-lg:        0 0 16px rgba(0, 255, 255, 0.5);
+
+    /* Typography */
+    --font-mono:      'Courier New', 'Consolas', 'Monaco', monospace;
+    --font-display:   'Courier New', 'Consolas', 'Monaco', monospace;
+}
+
+/* ---- Reset / base ---- */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg-base);
+    color: var(--cyan);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.4;
+    text-shadow: var(--glow-sm);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Scanline overlay (subtle CRT effect) ---- */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 255, 255, 0.03) 0px,
+        rgba(0, 255, 255, 0.03) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* ---- Vignette (darken edges) ---- */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(
+        ellipse at center,
+        transparent 50%,
+        rgba(0, 0, 0, 0.5) 100%
+    );
+    pointer-events: none;
+    z-index: 9998;
+}
+
+/* ==========================================================
+   LAYOUT
+   ========================================================== */
+
+.grid-shell {
+    display: grid;
+    grid-template-rows: 40px 1fr 28px;
+    grid-template-columns: 1fr;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* ---- Top status bar ---- */
+.bar-top {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    padding: 0 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-panel);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 13px;
+}
+
+.bar-top .brand {
+    color: var(--cyan-bright);
+    font-weight: bold;
+    letter-spacing: 0.3em;
+}
+
+.bar-top .operator {
+    color: var(--cyan);
+    opacity: 0.85;
+}
+
+.bar-top .operator .label {
+    color: var(--cyan-dim);
+    margin-right: 0.5em;
+}
+
+/* ---- Bottom status bar ---- */
+.bar-bottom {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    align-items: center;
+    padding: 0 1rem;
+    border-top: 1px solid var(--border);
+    background: var(--bg-panel);
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+.bar-bottom .stat {
+    color: var(--cyan);
+}
+
+.bar-bottom .stat .label {
+    color: var(--cyan-dim);
+    margin-right: 0.5em;
+}
+
+.bar-bottom .stat .value {
+    color: var(--green);
+}
+
+/* ---- Main content area ---- */
+.main {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 1px;
+    background: var(--border);          /* the gap shows as a cyan seam */
+    overflow: hidden;
+}
+
+/* ---- Terminal pane (left) ---- */
+.terminal-pane {
+    background: var(--bg-base);
+    padding: 1rem;
+    overflow: hidden;
+    position: relative;
+}
+
+.pane-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 11px;
+    color: var(--cyan-dim);
+}
+
+.pane-header .title {
+    color: var(--cyan-bright);
+}
+
+.pane-header .indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.4; }
+}
+
+/* ---- Terminal placeholder (Pass 2 will replace this with xterm.js) ---- */
+.terminal-placeholder {
+    font-family: var(--font-mono);
+    color: var(--green);
+    line-height: 1.6;
+}
+
+.terminal-placeholder .prompt {
+    color: var(--cyan-bright);
+}
+
+.terminal-placeholder .cursor {
+    display: inline-block;
+    width: 0.6em;
+    height: 1em;
+    background: var(--cyan-bright);
+    vertical-align: text-bottom;
+    animation: blink 1s steps(1) infinite;
+    box-shadow: var(--glow-md);
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+/* ---- Feed pane (right) ---- */
+.feed-pane {
+    background: var(--bg-base);
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.feed-card {
+    border: 1px solid var(--border);
+    background: var(--bg-panel);
+    overflow: hidden;
+}
+
+.feed-card .card-header {
+    padding: 0.4rem 0.75rem;
+    background: var(--bg-panel-hi);
+    border-bottom: 1px solid var(--border);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 11px;
+    color: var(--cyan-bright);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.feed-card .card-header .source {
+    color: var(--cyan-bright);
+}
+
+.feed-card .card-header .count {
+    color: var(--cyan-dim);
+    font-size: 10px;
+}
+
+.feed-card .card-body {
+    padding: 0.5rem 0.75rem;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.feed-item {
+    padding: 0.4rem 0;
+    border-bottom: 1px dashed rgba(0, 255, 255, 0.15);
+    color: var(--cyan);
+    cursor: pointer;
+    transition: color 150ms ease, text-shadow 150ms ease;
+}
+
+.feed-item:last-child {
+    border-bottom: none;
+}
+
+.feed-item:hover {
+    color: var(--cyan-bright);
+    text-shadow: var(--glow-md);
+}
+
+.feed-item .meta {
+    display: block;
+    margin-top: 2px;
+    font-size: 10px;
+    color: var(--cyan-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* ---- Scrollbar styling ---- */
+.feed-pane::-webkit-scrollbar {
+    width: 8px;
+}
+
+.feed-pane::-webkit-scrollbar-track {
+    background: var(--bg-base);
+}
+
+.feed-pane::-webkit-scrollbar-thumb {
+    background: var(--cyan-deep);
+    border-radius: 0;
+}
+
+.feed-pane::-webkit-scrollbar-thumb:hover {
+    background: var(--cyan-dim);
+}
+
+/* ---- Boot text effect for placeholder lines ---- */
+.boot-line {
+    opacity: 0;
+    animation: boot-in 200ms ease-out forwards;
+}
+
+.boot-line:nth-child(1) { animation-delay: 100ms; }
+.boot-line:nth-child(2) { animation-delay: 400ms; }
+.boot-line:nth-child(3) { animation-delay: 700ms; }
+.boot-line:nth-child(4) { animation-delay: 1000ms; }
+.boot-line:nth-child(5) { animation-delay: 1300ms; }
+.boot-line:nth-child(6) { animation-delay: 1600ms; }
+.boot-line:nth-child(7) { animation-delay: 1900ms; }
+
+@keyframes boot-in {
+    from { opacity: 0; transform: translateY(2px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
