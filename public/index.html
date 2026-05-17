@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEO99 :: GRID</title>
+    <link rel="stylesheet" href="/vendor/xterm/xterm.css">
     <link rel="stylesheet" href="/css/grid.css">
 </head>
 <body>
@@ -33,16 +34,9 @@
                     </span>
                 </div>
 
-                <!-- Placeholder boot text. Pass 2 replaces this div with xterm.js -->
-                <div id="terminal" class="terminal-placeholder">
-                    <div class="boot-line">[OK] Initializing wave motion core...</div>
-                    <div class="boot-line">[OK] Cosmo radar online.</div>
-                    <div class="boot-line">[OK] Identity disc: paired</div>
-                    <div class="boot-line">[OK] Connection to The Grid: established</div>
-                    <div class="boot-line">[OK] Operator: CygnusWildstar</div>
-                    <div class="boot-line">&nbsp;</div>
-                    <div class="boot-line"><span class="prompt">grid&gt;</span> <span class="cursor"></span></div>
-                </div>
+                <!-- xterm.js mounts here. We'll keep the .terminal-placeholder
+                     class off it now since xterm provides its own styling. -->
+                <div id="terminal"></div>
             </section>
 
             <!-- ----- Feed pane (right) ----- -->
@@ -140,6 +134,13 @@
 
     </div>
 
+    <!-- Third-party: xterm.js + addons -->
+    <script src="/vendor/xterm/xterm.js"></script>
+    <script src="/vendor/xterm/addon-fit.js"></script>
+    <script src="/vendor/xterm/addon-web-links.js"></script>
+
+    <!-- First-party: our app code -->
     <script src="/js/clock.js"></script>
+    <script src="/js/console.js"></script>
 </body>
 </html>

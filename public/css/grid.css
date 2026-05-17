@@ -1,6 +1,6 @@
 /* ==========================================================
    NEO99 :: GRID — Cyberpunk Operator Console
-   Pass 1: Layout shell + TRON Legacy aesthetic
+   Pass 2: Layout shell + xterm.js terminal integration
    Operator: CygnusWildstar
    ========================================================== */
 
@@ -162,6 +162,8 @@ body::after {
     padding: 1rem;
     overflow: hidden;
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .pane-header {
@@ -175,6 +177,7 @@ body::after {
     letter-spacing: 0.2em;
     font-size: 11px;
     color: var(--cyan-dim);
+    flex-shrink: 0;
 }
 
 .pane-header .title {
@@ -196,29 +199,38 @@ body::after {
     50%      { opacity: 0.4; }
 }
 
-/* ---- Terminal placeholder (Pass 2 will replace this with xterm.js) ---- */
-.terminal-placeholder {
-    font-family: var(--font-mono);
-    color: var(--green);
-    line-height: 1.6;
+/* ---- xterm.js terminal container ---- */
+#terminal {
+    flex: 1;
+    width: 100%;
+    background: var(--bg-base);
+    min-height: 0;          /* allows flex child to actually shrink */
 }
 
-.terminal-placeholder .prompt {
-    color: var(--cyan-bright);
+/* Override xterm's default focus outline — we don't want a browser outline */
+.xterm:focus,
+.xterm-screen:focus,
+.xterm:focus .xterm-screen {
+    outline: none !important;
 }
 
-.terminal-placeholder .cursor {
-    display: inline-block;
-    width: 0.6em;
-    height: 1em;
-    background: var(--cyan-bright);
-    vertical-align: text-bottom;
-    animation: blink 1s steps(1) infinite;
-    box-shadow: var(--glow-md);
+/* xterm's viewport — match scrollbar to our theme */
+.xterm-viewport::-webkit-scrollbar {
+    width: 8px;
+}
+.xterm-viewport::-webkit-scrollbar-track {
+    background: var(--bg-base);
+}
+.xterm-viewport::-webkit-scrollbar-thumb {
+    background: var(--cyan-deep);
+}
+.xterm-viewport::-webkit-scrollbar-thumb:hover {
+    background: var(--cyan-dim);
 }
 
-@keyframes blink {
-    50% { opacity: 0; }
+/* Small breathing room inside the xterm canvas */
+.xterm {
+    padding: 4px;
 }
 
 /* ---- Feed pane (right) ---- */
@@ -287,43 +299,4 @@ body::after {
     margin-top: 2px;
     font-size: 10px;
     color: var(--cyan-dim);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-}
-
-/* ---- Scrollbar styling ---- */
-.feed-pane::-webkit-scrollbar {
-    width: 8px;
-}
-
-.feed-pane::-webkit-scrollbar-track {
-    background: var(--bg-base);
-}
-
-.feed-pane::-webkit-scrollbar-thumb {
-    background: var(--cyan-deep);
-    border-radius: 0;
-}
-
-.feed-pane::-webkit-scrollbar-thumb:hover {
-    background: var(--cyan-dim);
-}
-
-/* ---- Boot text effect for placeholder lines ---- */
-.boot-line {
-    opacity: 0;
-    animation: boot-in 200ms ease-out forwards;
-}
-
-.boot-line:nth-child(1) { animation-delay: 100ms; }
-.boot-line:nth-child(2) { animation-delay: 400ms; }
-.boot-line:nth-child(3) { animation-delay: 700ms; }
-.boot-line:nth-child(4) { animation-delay: 1000ms; }
-.boot-line:nth-child(5) { animation-delay: 1300ms; }
-.boot-line:nth-child(6) { animation-delay: 1600ms; }
-.boot-line:nth-child(7) { animation-delay: 1900ms; }
-
-@keyframes boot-in {
-    from { opacity: 0; transform: translateY(2px); }
-    to   { opacity: 1; transform: translateY(0); }
 }
