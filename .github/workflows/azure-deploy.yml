@@ -1,0 +1,66 @@
+# =============================================================================
+# Neo99 Grid - Azure App Service CI/CD
+# Deploys to: neo99-grid.azurewebsites.net (rg-neo99-grid-prod, westus2)
+# Trigger:    push to main branch
+# Runtime:    Node 22 LTS
+# =============================================================================
+
+name: Deploy to Azure App Service
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:    # Allows manual triggering from the Actions tab
+
+env:
+  NODE_VERSION: '22.x'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    name: Build & Deploy
+
+    steps:
+      # ----- Checkout code -----
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ----- Set up Node.js -----
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      # ----- Install dependencies -----
+      # Using `npm ci` (not `npm install`) because it's faster and respects
+      # package-lock.json exactly. Reproducible builds = good ops hygiene.
+      - name: Install dependencies
+        run: npm ci
+
+      # ----- (Optional: run tests if/when we add them) -----
+      # - name: Run tests
+      #   run: npm test
+
+      # ----- Login to Azure using the service principal -----
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # ----- Deploy to Azure App Service -----
+      # `package: '.'` ships the entire repo (Azure runs npm install on its end).
+      # We DON'T include node_modules in the package because:
+      #   1. Azure will run `npm install` itself from package.json
+      #   2. Local node_modules may have platform-specific binaries (Linux vs Mac/Win)
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+          package: '.'
+
+      # ----- Logout (cleanup) -----
+      - name: Logout from Azure
+        run: az logout
+        if: always()
