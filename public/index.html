@@ -40,76 +40,8 @@
             </section>
 
             <!-- ----- Feed pane (right) ----- -->
-            <aside class="feed-pane">
-
-                <article class="feed-card">
-                    <header class="card-header">
-                        <span class="source">// Hacker News</span>
-                        <span class="count">[ 3 ]</span>
-                    </header>
-                    <div class="card-body">
-                        <div class="feed-item">
-                            Show HN: I built a TRON-themed operator console
-                            <span class="meta">2 min ago · neo99.com</span>
-                        </div>
-                        <div class="feed-item">
-                            The state of LLM inference in 2026
-                            <span class="meta">14 min ago</span>
-                        </div>
-                        <div class="feed-item">
-                            Postgres 19 released
-                            <span class="meta">1 hr ago</span>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="feed-card">
-                    <header class="card-header">
-                        <span class="source">// Ars Technica</span>
-                        <span class="count">[ 2 ]</span>
-                    </header>
-                    <div class="card-body">
-                        <div class="feed-item">
-                            Inside the data center cooling crisis
-                            <span class="meta">23 min ago</span>
-                        </div>
-                        <div class="feed-item">
-                            Quantum compute milestone hit by [redacted]
-                            <span class="meta">2 hrs ago</span>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="feed-card">
-                    <header class="card-header">
-                        <span class="source">// Microsoft Azure</span>
-                        <span class="count">[ 2 ]</span>
-                    </header>
-                    <div class="card-body">
-                        <div class="feed-item">
-                            App Service: new deployment slot features
-                            <span class="meta">1 hr ago</span>
-                        </div>
-                        <div class="feed-item">
-                            Front Door SKU updates
-                            <span class="meta">3 hrs ago</span>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="feed-card">
-                    <header class="card-header">
-                        <span class="source">// The Verge</span>
-                        <span class="count">[ 1 ]</span>
-                    </header>
-                    <div class="card-body">
-                        <div class="feed-item">
-                            The death and rebirth of the optical drive
-                            <span class="meta">5 hrs ago</span>
-                        </div>
-                    </div>
-                </article>
-
+             <aside class="feed-pane">
+                <!-- Populated dynamically by /js/feeds.js -->
             </aside>
 
         </main>
@@ -141,6 +73,7 @@
 
     <!-- First-party: our app code -->
     <script src="/js/clock.js"></script>
+    <script src="/js/feeds.js"></script>
     <script src="/js/console.js"></script>
 </body>
 </html>

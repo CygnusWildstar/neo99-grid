@@ -1,9 +1,5 @@
 // ==========================================================
 //  NEO99 :: GRID — Command Registry
-//
-//  Aggregates all individual command modules into a single
-//  Map keyed by command name. Adding a new command = create
-//  a new file in this directory and register it below.
 // ==========================================================
 
 import help from './help.js';
@@ -16,8 +12,8 @@ import scan from './scan.js';
 import matrix from './matrix.js';
 import argo from './argo.js';
 import version from './version.js';
+import feeds from './feeds.js';
 
-// ---- The registry — name → command module ----
 export const commands = new Map([
     ['help',     help],
     ['whoami',   whoami],
@@ -28,11 +24,11 @@ export const commands = new Map([
     ['scan',     scan],
     ['matrix',   matrix],
     ['argo',     argo],
-    ['wildstar', argo],          // alias — Star Blazers callsign
+    ['wildstar', argo],
     ['version',  version],
+    ['feeds',    feeds],
 ]);
 
-// ---- Helper to invoke a command safely ----
 export async function runCommand(name, args, context) {
     const cmd = commands.get(name.toLowerCase());
     if (!cmd) {
