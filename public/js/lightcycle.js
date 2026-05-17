@@ -12,7 +12,7 @@
 (function () {
     'use strict';
 
-    const COLS = 90;
+    const COLS = 70;
     const ROWS = 9;
     const TICK_MS = 200;
     const RESET_DELAY_MS = 2000;
