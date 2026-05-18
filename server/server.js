@@ -22,6 +22,21 @@ const publicDir = path.resolve(__dirname, '..', 'public');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+// ---- System info captured at boot ----
+// These values describe what's running and when this deploy happened.
+// Surfaced via /api/sysinfo for the System Telemetry panel.
+const SYSTEM_INFO = {
+    region:    process.env.AZURE_REGION || 'Azure West US 2',
+    runtime:   `Node ${process.version}`,
+    host:      process.env.WEBSITE_HOSTNAME || 'localhost',
+    bootTime:  new Date().toISOString(),
+    commit:    (process.env.GIT_COMMIT_SHA || 'local').substring(0, 7),
+    commitFull:(process.env.GIT_COMMIT_SHA || 'local'),
+    deployTime:process.env.DEPLOY_TIME || null,
+    repoUrl:   'https://github.com/CygnusWildstar/neo99-grid',
+};
+
+
 
 // ---- Canonical hostname redirect ----
 // www.neo99.com (and any other non-canonical hostname) is 301-redirected
@@ -75,6 +90,16 @@ app.get('/api/status', (req, res) => {
         feeds:    feedSources.length,
         timestamp: new Date().toISOString(),
         message: 'Greetings, Program.',
+    });
+});
+
+
+
+app.get('/api/sysinfo', (req, res) => {
+    res.json({
+        ...SYSTEM_INFO,
+        uptime: process.uptime(),
+        heapMB: (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(1),
     });
 });
 

@@ -442,3 +442,79 @@ body::after {
     text-rendering: optimizeSpeed;          /* don't get clever with monospace */
     white-space: pre;
 }
+
+
+/* ==========================================================
+   Per-feed scrolling (Phase 5 polish)
+   Each feed card body gets its own scrollable area so users
+   can scroll within one feed without affecting others.
+   ========================================================== */
+.feed-card .card-body {
+    max-height: 180px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 4px;
+}
+.feed-card .card-body::-webkit-scrollbar {
+    width: 6px;
+}
+.feed-card .card-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+.feed-card .card-body::-webkit-scrollbar-thumb {
+    background: var(--cyan-deep);
+    border-radius: 3px;
+}
+.feed-card .card-body::-webkit-scrollbar-thumb:hover {
+    background: var(--cyan-dim);
+}
+/* Firefox scrollbar styling */
+.feed-card .card-body {
+    scrollbar-width: thin;
+    scrollbar-color: var(--cyan-deep) transparent;
+}
+
+/* ==========================================================
+   System Telemetry panel (Phase 5)
+   A live readout of deploy metadata, runtime, region, uptime.
+   Styled as a feed card so it sits naturally with the others.
+   ========================================================== */
+.sysinfo-card .card-body.sysinfo-body {
+    max-height: none;                    /* fixed-content panel, no scroll needed */
+    overflow: visible;
+    padding: 0.25rem 0;
+}
+.sysinfo-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 3px 0;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    border-bottom: 1px dashed rgba(0, 255, 255, 0.08);
+}
+.sysinfo-row:last-child {
+    border-bottom: none;
+}
+.sysinfo-key {
+    color: var(--cyan-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    min-width: 90px;
+}
+.sysinfo-val {
+    color: var(--cyan);
+    text-align: right;
+    word-break: break-all;
+    padding-left: 0.5rem;
+}
+.sysinfo-val a {
+    color: var(--cyan-bright);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--cyan-dim);
+}
+.sysinfo-val a:hover {
+    color: var(--cyan-bright);
+    border-bottom-color: var(--cyan-bright);
+}

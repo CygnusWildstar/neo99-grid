@@ -60,6 +60,16 @@ jobs:
           app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
           package: '.'
 
+      - name: Set deployment metadata app settings
+        run: |
+          az webapp config appsettings set \
+            --name ${{ secrets.AZURE_WEBAPP_NAME }} \
+            --resource-group rg-neo99-grid-prod \
+            --settings \
+              GIT_COMMIT_SHA="${{ github.sha }}" \
+              DEPLOY_TIME="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --output none
+
       # ----- Logout (cleanup) -----
       - name: Logout from Azure
         run: az logout
