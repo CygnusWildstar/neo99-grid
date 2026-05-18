@@ -337,7 +337,7 @@ body::after {
     flex-direction: column;
     grid-row: 3 / 4;                    /* third row of grid-shell */
     grid-column: 1 / 2;                 /* spans just the left side */
-    width: calc(100vw - 1120px - 2px);  /* leave room for netviz + sysinfo on right */
+    width: calc(100vw - 980px - 2px);   /* leave room for netviz (420) + sysinfo (560) */
     box-sizing: border-box;
     cursor: crosshair;
     transition: background 150ms ease;
@@ -585,8 +585,8 @@ body::after {
     padding: 0.5rem 0.75rem;
     grid-row: 3 / 4;
     grid-column: 1 / 2;
-    width: 560px;
-    margin-left: calc(100vw - 1120px - 2px);  /* sit just right of the lightcycle */
+    width: 420px;
+    margin-left: calc(100vw - 980px - 2px);   /* sit just right of the lightcycle */
     box-sizing: border-box;
     overflow: hidden;
     display: flex;

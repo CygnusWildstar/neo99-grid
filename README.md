@@ -17,26 +17,26 @@ AZ-104 / Cloud Engineering learning project by **CygnusWildstar**.
 ## What it does
 
 ```
-┌────────────────────────────┬──────────────────────────────────┐
-│                            │  HACKER NEWS                     │
-│                            │  ↕ scrollable                    │
-│  OPERATOR TERMINAL         ├──────────────────────────────────┤
-│  (xterm.js + 21 commands)  │  ARS TECHNICA                    │
-│                            │  ↕ scrollable                    │
-│  grid> help                ├──────────────────────────────────┤
-│  grid> theme matrix        │  THE VERGE                       │
-│  grid> lightcycle start    │  ↕ scrollable                    │
-│  grid> motd                ├──────────────────────────────────┤
-│                            │  MICROSOFT AZURE                 │
-│                            │  ↕ scrollable                    │
-│                            ├──────────────────────────────────┤
-│                            │  AZURE UPDATES                   │
-│                            │  ↕ scrollable                    │
-├────────────────┬───────────┴────────┬─────────────────────────┤
-│   LIGHTCYCLE   │   NETWORK ACTIVITY │   SYSTEM TELEMETRY      │
-│   (ASCII game) │   (live req feed)  │   region, runtime,      │
-│                │                    │   commit, uptime, heap  │
-└────────────────┴────────────────────┴─────────────────────────┘
+┌────────────────────────────────┬──────────────────────────────┐
+│                                │  HACKER NEWS                 │
+│                                │  ↕ scrollable                │
+│  OPERATOR TERMINAL             ├──────────────────────────────┤
+│  (xterm.js + 21 commands)      │  ARS TECHNICA                │
+│                                │  ↕ scrollable                │
+│  grid> help                    ├──────────────────────────────┤
+│  grid> theme matrix            │  THE VERGE                   │
+│  grid> lightcycle start        │  ↕ scrollable                │
+│  grid> motd                    ├──────────────────────────────┤
+│                                │  MICROSOFT AZURE             │
+│                                │  ↕ scrollable                │
+│                                ├──────────────────────────────┤
+│                                │  AZURE UPDATES               │
+│                                │  ↕ scrollable                │
+├────────────────────┬───────────┴─────┬────────────────────────┤
+│   LIGHTCYCLE       │  NETWORK        │   SYSTEM TELEMETRY     │
+│   (ASCII game)     │  ACTIVITY       │   region, runtime,     │
+│                    │  (live req feed)│   commit, uptime, heap │
+└────────────────────┴─────────────────┴────────────────────────┘
 ```
 
 - **Operator Terminal** — Real [xterm.js](https://xtermjs.org/) terminal with
@@ -116,10 +116,10 @@ Total deploy time from `git push` to live: **~90 seconds.**
 Two real-time panels in the bottom row pair the application with
 observability about itself:
 
-| Panel              | Endpoint        | Cadence | Purpose                              |
-| ------------------ | --------------- | ------- | ------------------------------------ |
-| Network Activity   | `/api/netviz`   | 1.2 s   | recent requests, top routes, errors  |
-| System Telemetry   | `/api/sysinfo`  | 10 s    | region, runtime, commit, uptime, heap|
+| Panel              | Endpoint        | Cadence | Width | Purpose                              |
+| ------------------ | --------------- | ------- | ----- | ------------------------------------ |
+| Network Activity   | `/api/netviz`   | 1.2 s   | 420px | recent requests, top routes, errors  |
+| System Telemetry   | `/api/sysinfo`  | 10 s    | 560px | region, runtime, commit, uptime, heap|
 
 The network tracker is in-memory only (rolling 30-second window, capped
 event buffer) so it adds essentially zero overhead per request.
