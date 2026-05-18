@@ -450,7 +450,7 @@ body::after {
    can scroll within one feed without affecting others.
    ========================================================== */
 .feed-card .card-body {
-    max-height: 130px;
+    max-height: 180px;
     overflow-y: auto;
     overflow-x: hidden;
     padding-right: 4px;
@@ -517,4 +517,49 @@ body::after {
 .sysinfo-val a:hover {
     color: var(--cyan-bright);
     border-bottom-color: var(--cyan-bright);
+}
+
+
+/* ==========================================================
+   System Telemetry pane (Phase 5 — moved out of feed-pane)
+   Lives in row 3 of grid-shell, right of the lightcycle pane.
+   ========================================================== */
+.sysinfo-pane {
+    background: var(--bg-base);
+    border-left: 1px solid var(--border);
+    border-top: 1px solid var(--border);
+    padding: 1rem 1.25rem;
+    grid-row: 3 / 4;
+    grid-column: 1 / 2;
+    width: 560px;
+    margin-left: auto;                   /* push to right edge */
+    box-sizing: border-box;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* The sysinfo card inside the pane: full size, no max-height cap */
+.sysinfo-pane .feed-card.sysinfo-card {
+    border: 1px solid var(--border);
+    background: var(--bg-panel);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.sysinfo-pane .feed-card.sysinfo-card .card-header {
+    padding: 0.4rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-panel-hi);
+}
+.sysinfo-pane .feed-card.sysinfo-card .card-body.sysinfo-body {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    overflow-y: visible;
+}
+
+/* Roomier rows since we have more space now */
+.sysinfo-pane .sysinfo-row {
+    padding: 5px 0;
+    font-size: 12px;
 }

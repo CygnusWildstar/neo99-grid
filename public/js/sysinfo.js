@@ -9,9 +9,9 @@
 (function () {
     'use strict';
 
-    const $pane = document.querySelector('.feed-pane');
+    const $pane = document.querySelector('.sysinfo-pane');
     if (!$pane) {
-        console.warn('[sysinfo] .feed-pane not found');
+        console.warn('[sysinfo] .sysinfo-pane not found');
         return;
     }
 
