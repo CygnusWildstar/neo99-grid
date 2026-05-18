@@ -450,7 +450,7 @@ body::after {
    can scroll within one feed without affecting others.
    ========================================================== */
 .feed-card .card-body {
-    max-height: 180px;
+    max-height: 130px;
     overflow-y: auto;
     overflow-x: hidden;
     padding-right: 4px;
