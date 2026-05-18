@@ -558,8 +558,16 @@ body::after {
     overflow-y: visible;
 }
 
-/* Roomier rows since we have more space now */
+/* Compact rows — 8 fields must fit in the 220px-tall row of grid-shell */
 .sysinfo-pane .sysinfo-row {
-    padding: 5px 0;
-    font-size: 12px;
+    padding: 2px 0;
+    font-size: 11px;
+    line-height: 1.4;
+}
+.sysinfo-pane .sysinfo-key {
+    min-width: 80px;
+    font-size: 10px;
+}
+.sysinfo-pane .sysinfo-val {
+    font-size: 11px;
 }

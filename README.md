@@ -1,29 +1,193 @@
 # The Neo99 Grid
 
-> *"I tried to picture clusters of information as they moved through the computer. What did they look like? Ships? Motorcycles? Were the circuits like freeways? I kept dreaming of a world I thought I'd never see. And then, one day, I got in."* — Kevin Flynn
+> _"I tried to picture clusters of information as they moved through the computer.  
+> What did they look like? Ships? Motorcycles? Were the circuits like freeways?  
+> I kept dreaming of a world I thought I'd never see. And then, one day, I got in."_  
+> — Kevin Flynn, **TRON** (1982)
 
-A cyberpunk operator console deployed on Microsoft Azure. Built as a hands-on AZ-104 learning project by CygnusWildstar.
+A cyberpunk operator console deployed on Microsoft Azure. Live RSS aggregator,
+in-browser xterm.js terminal with 21+ commands, ASCII lightcycle game, live
+deploy telemetry. Built as a hands-on AZ-104 / Cloud Engineering learning
+project by **CygnusWildstar**.
 
-## Stack
-
-- **Backend**: Node.js 20 LTS + Express
-- **Frontend**: Vanilla HTML/CSS/JS + xterm.js
-- **Real-time**: WebSockets (`ws` library)
-- **Hosting**: Azure App Service (Linux)
-- **Background jobs**: Azure Functions
-- **Storage**: Azure Table Storage
-- **Identity**: Managed Identity + Key Vault
-- **Edge**: Azure Front Door + Application Insights
-- **CI/CD**: GitHub Actions
-
-## Status
-
-🟦 Early development. Scaffolding phase.
-
-## Operator
-
-CygnusWildstar @ neo99.com
+**🟦 Live:** [https://neo99.com](https://neo99.com)
 
 ---
 
-*End of line.* ◢◣
+## What it does
+
+```
+┌──────────────────────────────────────────┬────────────────────┐
+│                                          │  HACKER NEWS       │
+│                                          │  ↕ scrollable      │
+│         OPERATOR TERMINAL                ├────────────────────┤
+│         (xterm.js + 21 commands)         │  ARS TECHNICA      │
+│                                          │  ↕ scrollable      │
+│  grid> help                              ├────────────────────┤
+│  grid> theme matrix                      │  THE VERGE         │
+│  grid> lightcycle start                  │  ↕ scrollable      │
+│  grid> motd                              ├────────────────────┤
+│                                          │  MICROSOFT AZURE   │
+│                                          │  ↕ scrollable      │
+│                                          ├────────────────────┤
+│                                          │  AZURE UPDATES     │
+│                                          │  ↕ scrollable      │
+├──────────────────────────────────────────┼────────────────────┤
+│      LIGHTCYCLE ARENA                    │   SYSTEM TELEMETRY │
+│      (ASCII, direction-aware trails)     │   region, runtime, │
+│                                          │   commit, uptime   │
+└──────────────────────────────────────────┴────────────────────┘
+```
+
+- **Operator Terminal** — Real [xterm.js](https://xtermjs.org/) terminal with
+  command dispatcher, history, themes, audio synthesis (Web Audio API,
+  no audio files), and an embedded ASCII lightcycle game with
+  direction-aware trail glyphs.
+
+- **News Feed Aggregator** — Five RSS sources (Hacker News, Ars Technica,
+  The Verge, Microsoft Azure blog, Azure Updates). Per-feed scrolling
+  with cyan-themed scrollbars. Anti-corruption layer normalizes all
+  feeds to a single shape.
+
+- **System Telemetry** — Live dashboard showing the running region, Node
+  runtime, hostname, boot time, uptime, heap usage, and the exact Git
+  commit SHA powering the response (clickable to inspect the code on
+  GitHub).
+
+- **Lightcycle Arena** — Single-player ASCII grid game. Each cell tracks
+  enter/leave directions to pick the exact correct Unicode box-drawing
+  glyph for the trail. Click to focus, arrow keys to steer, Esc to release.
+
+---
+
+## Stack
+
+| Layer         | Tech                                                |
+| ------------- | --------------------------------------------------- |
+| Runtime       | Node.js 22 LTS                                      |
+| Server        | Express 5                                           |
+| Frontend      | Vanilla HTML/CSS/JS + xterm.js (no framework)       |
+| Audio         | Web Audio API (synthesized tones, no audio files)   |
+| RSS parsing   | `rss-parser` + custom anti-corruption layer         |
+| Hosting       | Azure App Service (Linux B1, West US 2)             |
+| TLS           | Azure App Service Managed Certificates (auto-renew) |
+| Observability | Application Insights (workspace-based, 90d retain)  |
+| CI/CD         | GitHub Actions → service principal → `az webapp`    |
+| Domain        | `neo99.com` (apex canonical) + `www` 301 redirect   |
+| Cost          | ~$13/mo (B1 plan) + ~$0 Application Insights        |
+
+---
+
+## Architecture
+
+```
+GitHub push to main
+     │
+     ▼
+GitHub Actions runner (Ubuntu 24.04)
+     │  npm ci → build → azure/login@v2 (service principal)
+     ▼
+azure/webapps-deploy@v3
+     │
+     ▼
+Azure App Service (Linux B1) ──── stamps GIT_COMMIT_SHA + DEPLOY_TIME
+     │                            into App Settings via `az webapp`
+     ▼
+Container restart with new env vars
+     │
+     ▼
+Express app reads SYSTEM_INFO at boot
+     │
+     ▼
+Live at https://neo99.com (managed TLS, apex canonical)
+```
+
+Total deploy time from `git push` to live: **~90 seconds.**
+
+---
+
+## Commands
+
+Inside the operator terminal:
+
+| Command             | Effect                                              |
+| ------------------- | --------------------------------------------------- |
+| `help`              | Show all commands                                   |
+| `whoami`            | Identify the current operator                       |
+| `date` / `uptime`   | Current date or process uptime                      |
+| `status`            | Backend status dump                                 |
+| `scan`              | Animated subsystem scan                             |
+| `matrix`            | Digital rain effect                                 |
+| `argo` / `wildstar` | Star Blazers reference                              |
+| `version`           | Build + commit info                                 |
+| `weather`           | Current operator weather (geo-stub)                 |
+| `connect <host>`    | Mock connection to a system                         |
+| `ascii <subject>`   | ASCII art generator                                 |
+| `motd`              | Random message of the day                           |
+| `ping <host>`       | Mock ping with simulated latency                    |
+| `theme <name>`      | Switch theme (tron, matrix, amber, magenta)         |
+| `mute` / `unmute`   | Toggle UI sound effects                             |
+| `lightcycle start`  | Drop into the ASCII lightcycle game                 |
+| `lightcycle reset`  | Restart the arena                                   |
+| `lightcycle quit`   | Exit back to the terminal                           |
+| `echo <text>`       | Echo back text                                      |
+| `clear`             | Clear the terminal                                  |
+
+---
+
+## Local development
+
+```bash
+git clone https://github.com/CygnusWildstar/neo99-grid.git
+cd neo99-grid
+npm ci
+npm start
+# open http://localhost:3000
+```
+
+Required: **Node.js 22 LTS**. Older versions will fail (the `package.json`
+`engines` field enforces this).
+
+---
+
+## Deploying your own
+
+The GitHub Actions workflow (`.github/workflows/azure-deploy.yml`) expects
+these secrets in your repo:
+
+| Secret                  | Value                                |
+| ----------------------- | ------------------------------------ |
+| `AZURE_CLIENT_ID`       | Service principal app ID             |
+| `AZURE_CLIENT_SECRET`   | Service principal password           |
+| `AZURE_TENANT_ID`       | Azure AD tenant GUID                 |
+| `AZURE_SUBSCRIPTION_ID` | Subscription GUID                    |
+| `AZURE_WEBAPP_NAME`     | Web App resource name                |
+
+The service principal is scoped to the Resource Group only — least
+privilege. The workflow logs into Azure, deploys the package, sets two
+metadata App Settings (`GIT_COMMIT_SHA`, `DEPLOY_TIME`) so the running
+container can surface its own deployment info, then logs out.
+
+---
+
+## Status
+
+🟦 **Production.** Live since May 2026. Continuously deployed.
+
+---
+
+## Easter eggs
+
+There are a few. Watch the commands. Watch the `motd`. Watch the boot
+sequence. Some are *TRON*. Some are *Star Blazers / Space Battleship
+Yamato*. Some are older still.
+
+---
+
+## Operator
+
+**CygnusWildstar** · [github.com/CygnusWildstar](https://github.com/CygnusWildstar) · [neo99.com](https://neo99.com)
+
+---
+
+_End of line._ ◢◣
