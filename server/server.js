@@ -15,6 +15,7 @@ import telemetryRouter from './routes/telemetry.js';
 import { commands } from './commands/index.js';
 import { startFeedService, sources as feedSources } from './services/feeds/index.js';
 import { telemetry } from './services/telemetry/counter.js';
+import { netviz }    from './services/netviz/tracker.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -48,6 +49,11 @@ app.use((req, res, next) => {
     }
     next();
 });
+
+// ---- Network activity tracker ----
+// Hooks every request's 'finish' event to record route/status data
+// for the System Telemetry's sibling /api/netviz panel.
+app.use(netviz.middleware());
 
 // ---- Middleware ----
 app.use(express.json({ limit: '64kb' }));
@@ -101,6 +107,10 @@ app.get('/api/sysinfo', (req, res) => {
         uptime: process.uptime(),
         heapMB: (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(1),
     });
+});
+
+app.get('/api/netviz', (req, res) => {
+    res.json(netviz.snapshot());
 });
 
 app.get('/healthz', (req, res) => {

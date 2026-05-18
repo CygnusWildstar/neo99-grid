@@ -7,8 +7,8 @@
 
 A cyberpunk operator console deployed on Microsoft Azure. Live RSS aggregator,
 in-browser xterm.js terminal with 21+ commands, ASCII lightcycle game, live
-deploy telemetry. Built as a hands-on AZ-104 / Cloud Engineering learning
-project by **CygnusWildstar**.
+deploy telemetry, and a live network activity visualizer. Built as a hands-on
+AZ-104 / Cloud Engineering learning project by **CygnusWildstar**.
 
 **🟦 Live:** [https://neo99.com](https://neo99.com)
 
@@ -17,26 +17,26 @@ project by **CygnusWildstar**.
 ## What it does
 
 ```
-┌──────────────────────────────────────────┬────────────────────┐
-│                                          │  HACKER NEWS       │
-│                                          │  ↕ scrollable      │
-│         OPERATOR TERMINAL                ├────────────────────┤
-│         (xterm.js + 21 commands)         │  ARS TECHNICA      │
-│                                          │  ↕ scrollable      │
-│  grid> help                              ├────────────────────┤
-│  grid> theme matrix                      │  THE VERGE         │
-│  grid> lightcycle start                  │  ↕ scrollable      │
-│  grid> motd                              ├────────────────────┤
-│                                          │  MICROSOFT AZURE   │
-│                                          │  ↕ scrollable      │
-│                                          ├────────────────────┤
-│                                          │  AZURE UPDATES     │
-│                                          │  ↕ scrollable      │
-├──────────────────────────────────────────┼────────────────────┤
-│      LIGHTCYCLE ARENA                    │   SYSTEM TELEMETRY │
-│      (ASCII, direction-aware trails)     │   region, runtime, │
-│                                          │   commit, uptime   │
-└──────────────────────────────────────────┴────────────────────┘
+┌────────────────────────────┬──────────────────────────────────┐
+│                            │  HACKER NEWS                     │
+│                            │  ↕ scrollable                    │
+│  OPERATOR TERMINAL         ├──────────────────────────────────┤
+│  (xterm.js + 21 commands)  │  ARS TECHNICA                    │
+│                            │  ↕ scrollable                    │
+│  grid> help                ├──────────────────────────────────┤
+│  grid> theme matrix        │  THE VERGE                       │
+│  grid> lightcycle start    │  ↕ scrollable                    │
+│  grid> motd                ├──────────────────────────────────┤
+│                            │  MICROSOFT AZURE                 │
+│                            │  ↕ scrollable                    │
+│                            ├──────────────────────────────────┤
+│                            │  AZURE UPDATES                   │
+│                            │  ↕ scrollable                    │
+├────────────────┬───────────┴────────┬─────────────────────────┤
+│   LIGHTCYCLE   │   NETWORK ACTIVITY │   SYSTEM TELEMETRY      │
+│   (ASCII game) │   (live req feed)  │   region, runtime,      │
+│                │                    │   commit, uptime, heap  │
+└────────────────┴────────────────────┴─────────────────────────┘
 ```
 
 - **Operator Terminal** — Real [xterm.js](https://xtermjs.org/) terminal with
@@ -49,14 +49,21 @@ project by **CygnusWildstar**.
   with cyan-themed scrollbars. Anti-corruption layer normalizes all
   feeds to a single shape.
 
+- **Lightcycle Arena** — Single-player ASCII grid game. Each cell tracks
+  enter/leave directions to pick the exact correct Unicode box-drawing
+  glyph for the trail. Click to focus, arrow keys to steer, Esc to release.
+
+- **Network Activity Visualizer** — Live ops dashboard showing real-time
+  HTTP request activity. Each request appears as an animated row with
+  method, path, and status code. Color-coded errors (4xx/5xx in red),
+  rolling 30-second window, top-routes ranking, and global hit/error
+  counts since boot. Filters out its own polling traffic so the display
+  shows real application work, not dashboard heartbeat.
+
 - **System Telemetry** — Live dashboard showing the running region, Node
   runtime, hostname, boot time, uptime, heap usage, and the exact Git
   commit SHA powering the response (clickable to inspect the code on
   GitHub).
-
-- **Lightcycle Arena** — Single-player ASCII grid game. Each cell tracks
-  enter/leave directions to pick the exact correct Unicode box-drawing
-  glyph for the trail. Click to focus, arrow keys to steer, Esc to release.
 
 ---
 
@@ -97,12 +104,25 @@ Container restart with new env vars
      │
      ▼
 Express app reads SYSTEM_INFO at boot
-     │
+     │  request middleware tracks all routes for /api/netviz
      ▼
 Live at https://neo99.com (managed TLS, apex canonical)
 ```
 
 Total deploy time from `git push` to live: **~90 seconds.**
+
+### Live operator dashboards
+
+Two real-time panels in the bottom row pair the application with
+observability about itself:
+
+| Panel              | Endpoint        | Cadence | Purpose                              |
+| ------------------ | --------------- | ------- | ------------------------------------ |
+| Network Activity   | `/api/netviz`   | 1.2 s   | recent requests, top routes, errors  |
+| System Telemetry   | `/api/sysinfo`  | 10 s    | region, runtime, commit, uptime, heap|
+
+The network tracker is in-memory only (rolling 30-second window, capped
+event buffer) so it adds essentially zero overhead per request.
 
 ---
 
@@ -132,6 +152,20 @@ Inside the operator terminal:
 | `lightcycle quit`   | Exit back to the terminal                           |
 | `echo <text>`       | Echo back text                                      |
 | `clear`             | Clear the terminal                                  |
+
+---
+
+## API surface
+
+| Endpoint             | Returns                                              |
+| -------------------- | ---------------------------------------------------- |
+| `GET /api/status`    | Backend status: online, operator, command/feed count |
+| `GET /api/feeds`     | Aggregated RSS items normalized to a single shape    |
+| `GET /api/sysinfo`   | SYSTEM_INFO at boot + live uptime/heap               |
+| `GET /api/netviz`    | Recent requests (rolling 30s), top routes, errors    |
+| `GET /api/telemetry` | Visitor counter snapshot                             |
+| `GET /healthz`       | Always 200 OK (used by App Service health checks)    |
+| `POST /api/command`  | Run a terminal command (used by the xterm front-end) |
 
 ---
 

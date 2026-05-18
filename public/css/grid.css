@@ -337,7 +337,7 @@ body::after {
     flex-direction: column;
     grid-row: 3 / 4;                    /* third row of grid-shell */
     grid-column: 1 / 2;                 /* spans just the left side */
-    width: calc(100vw - 560px - 1px);   /* matches the terminal pane width */
+    width: calc(100vw - 1120px - 2px);  /* leave room for netviz + sysinfo on right */
     box-sizing: border-box;
     cursor: crosshair;
     transition: background 150ms ease;
@@ -570,4 +570,116 @@ body::after {
 }
 .sysinfo-pane .sysinfo-val {
     font-size: 11px;
+}
+
+
+/* ==========================================================
+   Network Activity pane (Phase 5 — between lightcycle and sysinfo)
+   Lives in row 3 of grid-shell, between the lightcycle pane on
+   the left and the System Telemetry pane on the right.
+   ========================================================== */
+.netviz-pane {
+    background: var(--bg-base);
+    border-left: 1px solid var(--border);
+    border-top: 1px solid var(--border);
+    padding: 0.5rem 0.75rem;
+    grid-row: 3 / 4;
+    grid-column: 1 / 2;
+    width: 560px;
+    margin-left: calc(100vw - 1120px - 2px);  /* sit just right of the lightcycle */
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.netviz-pane .netviz-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--cyan-dim);
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0.4rem;
+}
+.netviz-pane .netviz-title {
+    color: var(--cyan);
+}
+.netviz-pane .netviz-badge {
+    color: var(--cyan-bright);
+}
+
+/* The animated canvas where packets flow */
+.netviz-pane .netviz-canvas {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    min-height: 0;
+    font-family: var(--font-mono);
+    font-size: 10px;
+}
+.netviz-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1px 0;
+    color: var(--cyan-dim);
+    white-space: nowrap;
+}
+.netviz-row .netviz-method {
+    color: var(--cyan);
+    min-width: 32px;
+}
+.netviz-row .netviz-path {
+    color: var(--cyan);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.netviz-row .netviz-status {
+    color: var(--cyan-bright);
+    min-width: 28px;
+    text-align: right;
+}
+.netviz-row.status-err .netviz-status,
+.netviz-row.status-err .netviz-path,
+.netviz-row.status-err .netviz-method {
+    color: var(--red, #ff5555);
+}
+.netviz-row.fading {
+    opacity: 0.35;
+    transition: opacity 600ms linear;
+}
+
+/* The animated dot that travels across each row */
+.netviz-packet {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--cyan-bright);
+    border-radius: 50%;
+    box-shadow: 0 0 4px var(--cyan-bright);
+    animation: netviz-flow 800ms linear forwards;
+}
+@keyframes netviz-flow {
+    from { transform: translateX(0);   opacity: 1; }
+    to   { transform: translateX(40px); opacity: 0; }
+}
+
+/* Bottom stats line */
+.netviz-pane .netviz-stats {
+    padding-top: 0.4rem;
+    border-top: 1px dashed rgba(0, 255, 255, 0.15);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--cyan-dim);
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.4rem;
+}
+.netviz-stats .stat strong {
+    color: var(--cyan);
+    font-weight: normal;
 }
