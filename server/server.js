@@ -23,6 +23,17 @@ const publicDir = path.resolve(__dirname, '..', 'public');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ---- Canonical hostname redirect ----
+// www.neo99.com (and any other non-canonical hostname) is 301-redirected
+// to https://neo99.com to keep one canonical URL for SEO, analytics, and
+// cookie scoping. Skipped when running locally (PORT defaulted to 3000).
+app.use((req, res, next) => {
+    if (req.hostname === 'www.neo99.com') {
+        return res.redirect(301, `https://neo99.com${req.originalUrl}`);
+    }
+    next();
+});
+
 // ---- Middleware ----
 app.use(express.json({ limit: '64kb' }));
 
