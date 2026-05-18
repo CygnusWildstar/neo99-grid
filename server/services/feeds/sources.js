@@ -38,11 +38,11 @@ export const sources = [
         maxItems: 5,
     },
     {
-        id:       'azurestatus',
-        label:    'Azure Status',
+        id:       'azureupdates',
+        label:    'Azure Updates',
         kind:     'rss',
-        url:      'https://azurestatuscdn.azureedge.net/en-us/status/feed/',
-        maxItems: 4,
+        url:      'https://www.microsoft.com/releasecommunications/api/v2/azure/rss',
+        maxItems: 5,
     },
 ];
 

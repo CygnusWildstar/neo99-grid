@@ -262,8 +262,8 @@
 
     function renderStatus(extra) {
         const base = focused
-            ? '// LIGHTCYCLE ARENA · <span style="color:#00ff99">FOCUSED</span> · esc to release'
-            : '// LIGHTCYCLE ARENA · click to focus · esc to release';
+            ? '// LIGHTCYCLE · <span style="color:#00ff99">FOCUSED</span> · esc to release'
+            : '// LIGHTCYCLE · click to focus, esc to release';
         $status.innerHTML = extra
             ? base + ' · <span style="color:#ffcc44">' + extra + '</span>'
             : base;
