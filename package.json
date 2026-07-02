@@ -27,6 +27,7 @@
     "@xterm/xterm": "^6.0.0",
     "express": "^5.2.1",
     "figlet": "^1.11.0",
+    "helmet": "^8.2.0",
     "rss-parser": "^3.13.0"
   }
 }

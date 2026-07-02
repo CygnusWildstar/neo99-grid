@@ -7,6 +7,7 @@
 import express from 'express';
 import { fileURLToPath } from 'url';
 import path from 'path';
+import helmet from 'helmet';
 import crypto from 'crypto';
 
 import commandRouter from './routes/command.js';
@@ -22,6 +23,11 @@ const __dirname = path.dirname(__filename);
 const publicDir = path.resolve(__dirname, '..', 'public');
 
 const app = express();
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // deferred — CSP would break the Grid's inline scripts/effects
+  })
+);
 const PORT = process.env.PORT || 3000;
 // ---- System info captured at boot ----
 // These values describe what's running and when this deploy happened.
