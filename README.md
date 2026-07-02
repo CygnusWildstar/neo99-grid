@@ -167,6 +167,31 @@ Inside the operator terminal:
 | `GET /healthz`       | Always 200 OK (used by App Service health checks)    |
 | `POST /api/command`  | Run a terminal command (used by the xterm front-end) |
 
+## Security
+
+Every response is hardened by [helmet](https://helmetjs.github.io/), applied
+before any static asset or route so the entire surface is covered:
+
+| Header | Value |
+| ------ | ----- |
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` |
+| `X-Frame-Options` | `SAMEORIGIN` |
+| `X-Content-Type-Options` | `nosniff` |
+| `Referrer-Policy` | `no-referrer` |
+| `Cross-Origin-Opener-Policy` | `same-origin` |
+| `Cross-Origin-Resource-Policy` | `same-origin` |
+
+The `X-Powered-By: Express` banner is stripped so the stack isn't advertised,
+and TLS is enforced end-to-end via Azure App Service managed certificates.
+
+**Content-Security-Policy is intentionally deferred.** The operator console
+relies on inline scripts and dynamically generated effects (the lightcycle
+arena, matrix rain, live canvases), so a strict CSP is being authored
+deliberately rather than dropped in blind — tracked as a follow-up alongside
+`Permissions-Policy` and `Cross-Origin-Embedder-Policy`.
+
+Posture is verified externally with `nuclei` and securityheaders.com against
+the live endpoint.
 ---
 
 ## Local development
