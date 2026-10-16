@@ -30,24 +30,54 @@ const QUOTES = [
     { text: '"All these moments will be lost in time, like tears in rain."',       attribution: 'Roy Batty — Blade Runner' },
 ];
 
+// ---- Box layout ----
+// Sized for the docked ~50-column terminal: the whole box is
+// 46 characters wide, and quotes word-wrap INSIDE the borders.
+const INNER = 42;                 // characters between ║ and ║
+const TEXT_WIDTH = INNER - 4;     // 2 spaces of padding on each side
+
+function wrap(text, width) {
+    const lines = [];
+    let line = '';
+    for (const word of text.split(' ')) {
+        if (line && (line + ' ' + word).length > width) {
+            lines.push(line);
+            line = word;
+        } else {
+            line = line ? line + ' ' + word : word;
+        }
+    }
+    if (line) lines.push(line);
+    return lines;
+}
+
+const row   = (t) => `  ║  ${t.padEnd(TEXT_WIDTH)}  ║`;
+const blank = `  ║${' '.repeat(INNER)}║`;
+
 export default {
     name: 'motd',
     description: 'message of the day',
 
     async run() {
         const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
-        return {
-            lines: [
-                { text: '' },
-                { text: '  ╔══ MESSAGE OF THE DAY ══════════════════════════╗', color: 'cyanBright' },
-                { text: '  ║                                                ║', color: 'cyanBright' },
-                { text: `  ║  ${q.text}`, color: 'cyan' },
-                { text: '  ║                                                ║', color: 'cyanBright' },
-                { text: `  ║  — ${q.attribution}`, color: 'dim' },
-                { text: '  ║                                                ║', color: 'cyanBright' },
-                { text: '  ╚════════════════════════════════════════════════╝', color: 'cyanBright' },
-                { text: '' },
-            ],
-        };
+        const color = 'cyanBright';
+
+        const lines = [
+            { text: '' },
+            { text: `  ╔══ MESSAGE OF THE DAY ${'═'.repeat(INNER - 22)}╗`, color },
+            { text: blank, color },
+        ];
+        for (const l of wrap(q.text, TEXT_WIDTH)) {
+            lines.push({ text: row(l), color });
+        }
+        lines.push({ text: blank, color });
+        for (const l of wrap(`— ${q.attribution}`, TEXT_WIDTH)) {
+            lines.push({ text: row(l), color });
+        }
+        lines.push({ text: blank, color });
+        lines.push({ text: `  ╚${'═'.repeat(INNER)}╝`, color });
+        lines.push({ text: '' });
+
+        return { lines };
     },
 };

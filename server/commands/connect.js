@@ -20,7 +20,7 @@ const NODES = {
     'neo99bridge': { ip: '172.16.1.65', role: 'Dev workstation (this host)',    banner: 'YOU ARE ALREADY HERE' },
     'neo99nas':    { ip: '172.16.1.70', role: 'Synology DS723+ storage',        banner: 'primary storage cluster' },
     'neo99oracle':  { ip: '172.16.1.75', role: 'Ollama + Open WebUI',                       banner: 'inference engine' },
-    'neo99azeroth': { ip: '172.16.1.80', role: 'WoW Wrath of the Lich King private realm',  banner: 'frozen throne online — by your will, my king' },
+    'neo99azeroth': { ip: '172.16.1.80', role: 'WoW WotLK private realm',banner: 'frozen throne online — by your will, my king' },
 };
 
 // Accept friendly aliases
@@ -54,6 +54,29 @@ const ALIASES = {
     'lich':     'neo99azeroth',
 };
 
+// ---- Box layout ----
+// Sized for the docked ~50-column terminal: the box is 46
+// characters wide, and long role names wrap INSIDE the borders.
+const INNER = 42;                 // characters between ║ and ║
+const TEXT_WIDTH = INNER - 4;     // 2 spaces of padding on each side
+
+function wrap(text, width) {
+    const lines = [];
+    let line = '';
+    for (const word of text.split(' ')) {
+        if (line && (line + ' ' + word).length > width) {
+            lines.push(line);
+            line = word;
+        } else {
+            line = line ? line + ' ' + word : word;
+        }
+    }
+    if (line) lines.push(line);
+    return lines;
+}
+
+const row = (t) => `  ║  ${t.padEnd(TEXT_WIDTH)}  ║`;
+
 export default {
     name: 'connect',
     description: 'connect to a fleet node (usage: connect <node>)',
@@ -66,7 +89,7 @@ export default {
             lines.push({ text: '  available nodes:', color: 'cyanBright' });
             lines.push({ text: '' });
             for (const [host, info] of Object.entries(NODES)) {
-                lines.push({ text: `    ${host.padEnd(14)} ${info.ip.padEnd(14)} ${info.role}`, color: 'cyan' });
+                lines.push({ text: `    ${host.padEnd(13)} ${info.ip.padEnd(12)} ${info.role}`, color: 'cyan' });
             }
             lines.push({ text: '' });
             return { lines };
@@ -84,13 +107,15 @@ export default {
         }
 
         lines.push({ text: `  ▸ establishing connection to ${hostname}...`, color: 'cyan' });
-        lines.push({ text: `  ▸ ${node.ip}  ·  ssh handshake...`, color: 'cyan' });
-        lines.push({ text: `  ▸ identity disc verified.`, color: 'green' });
+        lines.push({ text: `  ▸ ${node.ip} · ssh handshake...`, color: 'cyan' });
+        lines.push({ text: '  ▸ identity disc verified.', color: 'green' });
         lines.push({ text: '' });
-        lines.push({ text: '  ╔══════════════════════════════════════════════════╗', color: 'cyanBright' });
-        lines.push({ text: `  ║  ${hostname.toUpperCase().padEnd(46)} ║`, color: 'cyanBright' });
-        lines.push({ text: `  ║  ${node.role.padEnd(46)} ║`, color: 'cyan' });
-        lines.push({ text: '  ╚══════════════════════════════════════════════════╝', color: 'cyanBright' });
+        lines.push({ text: `  ╔${'═'.repeat(INNER)}╗`, color: 'cyanBright' });
+        lines.push({ text: row(hostname.toUpperCase()), color: 'cyanBright' });
+        for (const l of wrap(node.role, TEXT_WIDTH)) {
+            lines.push({ text: row(l), color: 'cyanBright' });
+        }
+        lines.push({ text: `  ╚${'═'.repeat(INNER)}╝`, color: 'cyanBright' });
         lines.push({ text: '' });
         lines.push({ text: `  ${node.banner}`, color: 'green' });
 
@@ -100,7 +125,7 @@ export default {
         }
 
         lines.push({ text: '' });
-        lines.push({ text: '  (note: this is a flavor command — actual SSH is via your shell)', color: 'dim' });
+        lines.push({ text: '  (flavor command — real SSH is via your shell)', color: 'dim' });
         lines.push({ text: '' });
 
         return { lines };

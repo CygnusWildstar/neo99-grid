@@ -30,3 +30,4 @@ build/
 *.tmp
 *.swp
 *~
+*.code-workspace

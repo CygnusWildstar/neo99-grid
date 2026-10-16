@@ -44,6 +44,27 @@ export const sources = [
         url:      'https://www.microsoft.com/releasecommunications/api/v2/azure/rss',
         maxItems: 5,
     },
+    {
+        id:       'pcgamer',
+        label:    'PC Gamer',
+        kind:     'rss',
+        url:      'https://www.pcgamer.com/rss/',
+        maxItems: 5,
+    },
+    {
+        id:       'tomshardware',
+        label:    "Tom's Hardware",
+        kind:     'rss',
+        url:      'https://www.tomshardware.com/feeds/all',
+        maxItems: 5,
+    },
+    {
+        id:       'animenewsnetwork',
+        label:    'Anime News Network',
+        kind:     'rss',
+        url:      'https://www.animenewsnetwork.com/all/rss.xml?ann-edition=us',
+        maxItems: 5,
+    },
 ];
 
 // How often to refresh feeds, in milliseconds.

@@ -14,7 +14,7 @@ export default {
                 { text: `  UTC      : ${now.toUTCString()}`, color: 'cyan' },
                 { text: `  ISO      : ${now.toISOString()}`, color: 'cyan' },
                 { text: `  Epoch    : ${Math.floor(now.getTime() / 1000)}`, color: 'cyan' },
-                { text: `  Local    : ${now.toString()}`, color: 'cyan' },
+                { text: `  Server   : ${now.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', second: '2-digit', timeZoneName: 'short' })}`, color: 'cyan' },
                 { text: '' },
             ],
         };

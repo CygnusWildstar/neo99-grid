@@ -8,6 +8,15 @@
 
 import { cache, sources } from '../services/feeds/index.js';
 
+// Turn an ISO timestamp into a short relative age ("12m ago")
+function ago(iso) {
+    if (!iso) return 'not yet fetched';
+    const min = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+    if (min < 1) return 'just now';
+    if (min < 60) return `${min}m ago`;
+    return `${Math.floor(min / 60)}h ago`;
+}
+
 export default {
     name: 'feeds',
     description: 'list feed sources, or show items (usage: feeds [source])',
@@ -23,18 +32,17 @@ export default {
             for (const s of sources) {
                 const entry = cache.get(s.id);
                 const count = entry?.items?.length || 0;
-                const updated = entry?.updatedAt
-                    ? new Date(entry.updatedAt).toISOString()
-                    : 'not yet fetched';
+                const updated = ago(entry?.updatedAt);
                 const errStr = entry?.error ? `  ✗ ${entry.error}` : '';
 
                 lines.push({
-                    text: `    ${s.id.padEnd(12)} ${String(count).padStart(2)} items   ${updated}${errStr}`,
+                    text: `    ${s.id.padEnd(17)}${String(count).padStart(2)} items  ${updated}${errStr}`,
                     color: entry?.error ? 'red' : (count > 0 ? 'cyan' : 'dim'),
                 });
             }
             lines.push({ text: '' });
-            lines.push({ text: '  Usage: feeds <source>   (e.g. feeds hackernews)', color: 'dim' });
+            lines.push({ text: '  Usage: feeds <source>', color: 'dim' });
+            lines.push({ text: '  e.g.   feeds hackernews', color: 'dim' });
             lines.push({ text: '' });
             return { lines };
         }
@@ -52,13 +60,14 @@ export default {
         const entry = cache.get(sourceId);
         if (!entry || !entry.items || entry.items.length === 0) {
             lines.push({ text: `  no items cached for ${source.label} yet.`, color: 'dim' });
-            lines.push({ text: '  initial fetch may still be running. try again in a few seconds.', color: 'dim' });
+            lines.push({ text: '  initial fetch may still be running.', color: 'dim' });
+            lines.push({ text: '  try again in a few seconds.', color: 'dim' });
             lines.push({ text: '' });
             return { lines };
         }
 
         lines.push({ text: `  // ${source.label}`, color: 'cyanBright' });
-        lines.push({ text: `  ${entry.items.length} items, updated ${entry.updatedAt}`, color: 'dim' });
+        lines.push({ text: `  ${entry.items.length} items, updated ${ago(entry.updatedAt)}`, color: 'dim' });
         lines.push({ text: '' });
 
         for (const item of entry.items) {
