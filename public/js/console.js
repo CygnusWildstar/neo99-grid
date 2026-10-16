@@ -101,10 +101,10 @@
         const d = ansi.dim + ansi.cyan;
 
         term.writeln('');
-        term.writeln(c + '  ╔══════════════════════════════════════════════════╗' + r);
-        term.writeln(c + '  ║              NEO99 // GRID                       ║' + r);
-        term.writeln(c + '  ║          Operator Console v0.3.0                 ║' + r);
-        term.writeln(c + '  ╚══════════════════════════════════════════════════╝' + r);
+        term.writeln(c + '  ╔══════════════════════════════════════╗' + r);
+        term.writeln(c + '  ║            NEO99 // GRID             ║' + r);
+        term.writeln(c + '  ║       Operator Console v0.3.0        ║' + r);
+        term.writeln(c + '  ╚══════════════════════════════════════╝' + r);
         term.writeln('');
         term.writeln(d + '  [OK] ' + ansi.reset + ansi.cyan + 'Initializing wave motion core...' + r);
         term.writeln(d + '  [OK] ' + ansi.reset + ansi.cyan + 'Cosmo radar online.' + r);
@@ -132,13 +132,48 @@
     }
 
     // ---- Render lines from the server ----
+        // ---- Word-wrap a line to the terminal width ----
+    // Continuation lines are indented under the "value" column —
+    // the text after the last column gap ("  ", " : ", " ─ ")
+    // in the first ~70% of the line.
+    function wrapLine(text, cols) {
+        if (text.length <= cols) return [text];
+
+        const lead = text.match(/^ */)[0].length;
+        let indent = lead + 2;
+        const gap = /( {2,}| : | ─ )/g;
+        let m;
+        while ((m = gap.exec(text)) !== null) {
+            const end = m.index + m[0].length;
+            if (end > lead && end < cols * 0.7) indent = end;
+        }
+
+        const out = [];
+        let rest = text;
+        let first = true;
+        while (rest.length > cols) {
+            let cut = rest.lastIndexOf(' ', cols);
+            if (cut <= indent) {
+                if (first && cut > lead) indent = lead + 2;  // value too long for its column
+                else cut = cols;                            // no space to break on: hard cut
+            }
+            first = false;
+            out.push(rest.slice(0, cut).trimEnd());
+            rest = ' '.repeat(indent) + rest.slice(cut).trimStart();
+        }
+        out.push(rest);
+        return out;
+    }
+
     function renderLine(line) {
         const text = line.text || '';
         if (text === '') {
             term.writeln('');
             return;
         }
-        term.writeln(colorize(text, line.color));
+        for (const part of wrapLine(text, term.cols - 1)) {
+            term.writeln(colorize(part, line.color));
+        }
     }
 
     async function renderLines(lines, animated) {

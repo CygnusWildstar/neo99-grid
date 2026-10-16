@@ -9,12 +9,17 @@
 //    2. Pull current weather + 3-day forecast for those coords
 //
 //  Open-Meteo is free and requires no API key.
+//
+//  Layout note: the weather glyphs render at different widths
+//  in different fonts, so every fixed-width column (day, temps)
+//  comes BEFORE the glyph and the description goes last.
+//  Sized to fit the docked ~50-column terminal.
 // ==========================================================
 
 const GEOCODE_URL = 'https://geocoding-api.open-meteo.com/v1/search';
 const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast';
 
-// Map WMO weather codes to glyphs + labels
+// Map WMO weather codes to glyphs + short labels
 // https://open-meteo.com/en/docs (search WMO Weather interpretation codes)
 const WX_CODES = {
     0:  ['☀',  'clear sky'],
@@ -22,7 +27,7 @@ const WX_CODES = {
     2:  ['⛅', 'partly cloudy'],
     3:  ['☁',  'overcast'],
     45: ['🌫', 'fog'],
-    48: ['🌫', 'depositing rime fog'],
+    48: ['🌫', 'rime fog'],
     51: ['🌦', 'light drizzle'],
     53: ['🌦', 'drizzle'],
     55: ['🌧', 'heavy drizzle'],
@@ -33,17 +38,23 @@ const WX_CODES = {
     73: ['🌨', 'snow'],
     75: ['❄',  'heavy snow'],
     77: ['❄',  'snow grains'],
-    80: ['🌦', 'light rain showers'],
+    80: ['🌦', 'light showers'],
     81: ['🌧', 'rain showers'],
-    82: ['🌧', 'violent rain showers'],
+    82: ['🌧', 'violent showers'],
     95: ['⛈', 'thunderstorm'],
-    96: ['⛈', 'thunderstorm w/ hail'],
-    99: ['⛈', 'severe thunderstorm w/ hail'],
+    96: ['⛈', 't-storm + hail'],
+    99: ['⛈', 'severe t-storm + hail'],
 };
 
 function wxLabel(code) {
     const e = WX_CODES[code];
-    return e ? `${e[0]}  ${e[1]}` : `code ${code}`;
+    return e ? `${e[0]} ${e[1]}` : `code ${code}`;
+}
+
+// "2026-10-17" → "Sat"
+function weekday(isoDate) {
+    return new Date(`${isoDate}T12:00:00Z`)
+        .toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' });
 }
 
 export default {
@@ -55,7 +66,8 @@ export default {
 
         if (!args || args.length === 0) {
             lines.push({ text: '  usage: weather <city>', color: 'dim' });
-            lines.push({ text: '  examples: weather Miami, weather Tokyo, weather "London"', color: 'dim' });
+            lines.push({ text: '  e.g.   weather Miami', color: 'dim' });
+            lines.push({ text: '         weather Mexico City', color: 'dim' });
             lines.push({ text: '' });
             return { lines };
         }
@@ -96,20 +108,21 @@ export default {
         // ---- Render ----
         const locStr = [name, admin1, country].filter(Boolean).join(', ');
         lines.push({ text: `  ▸ ${locStr}`, color: 'cyanBright' });
-        lines.push({ text: `    ${latitude.toFixed(3)}, ${longitude.toFixed(3)}  ·  ${timezone}`, color: 'dim' });
+        lines.push({ text: `    ${latitude.toFixed(3)}, ${longitude.toFixed(3)} · ${timezone}`, color: 'dim' });
         lines.push({ text: '' });
-        lines.push({ text: `  NOW   ${wxLabel(c.weather_code).padEnd(28)} ${Math.round(c.temperature_2m)}°F`, color: 'green' });
-        lines.push({ text: `        humidity ${c.relative_humidity_2m}%   wind ${Math.round(c.wind_speed_10m)} mph`, color: 'cyan' });
-        lines.push({ text: '' });
-        lines.push({ text: '  FORECAST', color: 'cyanBright' });
 
-        const dayNames = ['Today', 'Tomorrow', 'Day +2', 'Day +3'];
+        const nowTemp = `${Math.round(c.temperature_2m)}°F`.padEnd(6);
+        lines.push({ text: `  NOW   ${nowTemp}  ${wxLabel(c.weather_code)}`, color: 'greenBright' });
+        lines.push({ text: `        humidity ${c.relative_humidity_2m}% · wind ${Math.round(c.wind_speed_10m)} mph`, color: 'cyan' });
+        lines.push({ text: '' });
+        lines.push({ text: '  FORECAST    hi / lo', color: 'cyanBright' });
+
         for (let i = 0; i < Math.min(4, d.time.length); i++) {
-            const label = dayNames[i].padEnd(10);
-            const wxStr = wxLabel(d.weather_code[i]).padEnd(28);
+            const label = (i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : weekday(d.time[i])).padEnd(10);
             const hi = Math.round(d.temperature_2m_max[i]);
             const lo = Math.round(d.temperature_2m_min[i]);
-            lines.push({ text: `    ${label} ${wxStr} ${hi}° / ${lo}°`, color: 'cyan' });
+            const temps = `${hi}° / ${lo}°`.padEnd(11);
+            lines.push({ text: `    ${label}${temps} ${wxLabel(d.weather_code[i])}`, color: 'cyan' });
         }
 
         lines.push({ text: '' });
